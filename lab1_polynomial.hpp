@@ -1,5 +1,3 @@
-//Nicholas Varabioff 20702729
-//Ryan Gangl 20737072
 #ifndef lab1_polynomial_H
 #define lab1_polynomial_H
 
