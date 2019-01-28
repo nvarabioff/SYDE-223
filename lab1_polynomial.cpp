@@ -1,3 +1,6 @@
+//Nicholas Varabioff 20702729
+//Ryan Gangl 20737072
+
 #include <iostream>
 #include <vector>
 #include <cstdlib>
@@ -7,22 +10,25 @@
 
 using namespace std;
 
-Polynomial::Polynomial(int A[], int size) { //class constructor with 2 input parameters
+Polynomial::Polynomial(int A[], int size) { 	//class constructor with 2 input parameters
 	data_size = size;
 	data = new int[data_size];
 	for (int i = 0; i < data_size; i++) {
 		data[i] = A[i];
+		if (abs(A[i]) > 1000) //to handle random numbers if A is longer than size
+			data[i] = 0;
 	}
 }
-Polynomial::Polynomial() {					//class constructor with random values
+Polynomial::Polynomial() {		//class constructor with random length and random values
 	data_size = rand() % 1001;
+	if (data_size % 2 == 1)
+		srand(time(0));	//for randomness
 	data = new int[data_size];
 	for (int i = 0; i < data_size; i++) {
 		data[i] = (rand() % 2001) - 1000;
 	}
-	//srand(time(0))??
 }
-Polynomial::Polynomial(string fileName) {	//class constructor with input file ** NEEDS CHANGES **
+Polynomial::Polynomial(string fileName) {	//class constructor with input file
 	ifstream in_stream;
 	in_stream.open(fileName.c_str());
 	if (in_stream.fail()){
@@ -32,44 +38,40 @@ Polynomial::Polynomial(string fileName) {	//class constructor with input file **
 	in_stream >> data_size;
 	data = new int[data_size];
 	int i = 0;
-	while (!in_stream.eof()){
+	while (!in_stream.eof()){	//if size given is smaller than number of elements the array takes the size
 		in_stream >> data[i];
 		i++;
 	}
+	for (int j = i - 1; j < data_size; j++){ //if size given is longer than number of elements
+		data[j] = 0;
+	}
 	in_stream.close();
-	
-	/*for (int i = 0; i < data_size; i++) {
-		cout << data[i] << endl;
-	}*/
-	
-	//THIS FUNCTION ASSUMES THE DATA LENGTH IN THE FILE CORRESPONDS TO THE LENGTH OF THE ARRAY IN THE FILE
-	//IF THE SIZE IS LONGER THAN THE GIVEN NUMBER OF ELEMENTS THEN THE UNASSIGNED VALUES WILL BE RANDOM
-	//IF THE SIZE IS SHORTER THAN THE GIVEN NUMBER OF ELEMENTS THEN THERE WILL BE ERRORS
 }
-Polynomial::~Polynomial() {					//destructor performs cleanup if needed
+Polynomial::~Polynomial() {		//destructor performs cleanup if needed
 		delete [] data;
 }
-
-bool Polynomial::operator==(const Polynomial& target) {			//performs *this == target
+int Polynomial::getDegree(){
+	return data_size;
+}
+bool Polynomial::operator==(const Polynomial& target) {		//performs *this == target
 	bool success = false;
-	if (target.data_size == data_size) {
+	if (target.data_size == data_size) {	//compares array length
 		success = true;
-		for (int i = 0; i < data_size; i++) {
+		for (int i = 0; i < data_size; i++) {	//compares array elementwise if size is equal
 			if (target.data[i] != data[i]) {
 				success = false;
 			}
 		}
-	}
-	return success;
+	} return success;
 }
-void Polynomial::print() {										//prints the polynomial (ex. 2x^3 + 1x^0)
+void Polynomial::print() {				//prints the polynomial (ex. 2x^3 + 1x^0)
 	for (int i = 0; i < data_size; i++) {
 		if (i == 0)
-			cout << data[i];
+			cout << data[i];	//doesn't show x or exponent if x^0
 		else if (i == 1)
-			cout << abs(data[i]) << "x";
+			cout << abs(data[i]) << "x";	//doesn't show exponent if x^1
 		else
-			cout << abs(data[i]) << "x^" << i;
+			cout << abs(data[i]) << "x^" << i;	//general case
 		if (i < data_size - 1 && data[i] >= 0)
 			cout << " + ";
 		else if (i < data_size - 1 && data[i] < 0)
@@ -79,8 +81,8 @@ void Polynomial::print() {										//prints the polynomial (ex. 2x^3 + 1x^0)
 Polynomial Polynomial::operator+(const Polynomial& target) {	//performs *this + target
 	int result_data_size;
 	int smaller;
-	if (data_size >= target.data_size) {
-		result_data_size = data_size;
+	if (data_size >= target.data_size) {	//determines size of result array based on longest
+		result_data_size = data_size;		//stores smaller array size for help in future calculations
 		smaller = target.data_size;
 	}
 	else {
@@ -91,22 +93,20 @@ Polynomial Polynomial::operator+(const Polynomial& target) {	//performs *this + 
 	for (int i = 0; i < smaller; i++) {
 		result_data[i] = data[i] + target.data[i];
 	}
-	for (int i = smaller; i < result_data_size; i++) {
+	for (int i = smaller; i < result_data_size; i++) {	//for handling arrays of different lengths
 		if (data_size >= target.data_size)
 			result_data[i] = data[i];
 		else
 			result_data[i] = target.data[i];
 	}
-	
-	Polynomial result = Polynomial(result_data, result_data_size);
-	
+	Polynomial result = Polynomial(result_data, result_data_size);	//stores result in new polynomial object
 	return result;
 } 
 Polynomial Polynomial::operator-(const Polynomial& target) {	//performs *this - target
 	int result_data_size;
 	int smaller;
-	if (data_size >= target.data_size) {
-		result_data_size = data_size;
+	if (data_size >= target.data_size) {	//determines size of result array based on longest
+		result_data_size = data_size;		//stores size of smaller array for future calculations
 		smaller = target.data_size;
 	}
 	else {
@@ -117,48 +117,41 @@ Polynomial Polynomial::operator-(const Polynomial& target) {	//performs *this - 
 	for (int i = 0; i < smaller; i++) {
 		result_data[i] = data[i] - target.data[i];
 	}
-	for (int i = smaller; i < result_data_size; i++) {
+	for (int i = smaller; i < result_data_size; i++) {	//for handling arrays of different lengths
 		if (data_size >= target.data_size)
 			result_data[i] = data[i];
 		else
 			result_data[i] = 0 - target.data[i];
 	}
-	
-	Polynomial result = Polynomial(result_data, result_data_size);
-	
+	Polynomial result = Polynomial(result_data, result_data_size);	//stores results in new polynomial object
 	return result;
 } 
 Polynomial Polynomial::operator*(const Polynomial& target) {	//performs *this * target
-	int result_data_size = data_size + target.data_size - 1;
+	int result_data_size = data_size + target.data_size - 1;	//sets length of result
 	int result_data[result_data_size];
-	for (int i = 0; i < result_data_size; i++){
+	for (int i = 0; i < result_data_size; i++){	//initializes array to 0
 		result_data[i] = 0;
 	}
 	for (int i = 0; i < data_size; i++) {
-		for (int j = 0; j < target.data_size; j++) {
+		for (int j = 0; j < target.data_size; j++) {	//multiplication of arrays
 			result_data[i+j] += data[i] * target.data[j]; 
 		}
 	}
-	Polynomial result = Polynomial(result_data, result_data_size);
-	//result.print();
-	//cout << endl;
+	Polynomial result = Polynomial(result_data, result_data_size);	//stores result in new polynomial object
 	return result;
 } 
 Polynomial Polynomial::derivative() {							//computes the derivative d/dx of *this
 	int result_data_size;
 	if (data_size > 0)
-		result_data_size = data_size - 1;
+		result_data_size = data_size - 1;	//sets length of result
 	else
-		result_data_size = 0;
+		result_data_size = 0;	//for empty arrays
 	int result_data[result_data_size];
-	result_data[0] = data[1];
-	for (int i = 1; i < result_data_size; i++) {
+	result_data[0] = data[1];	
+	for (int i = 1; i < result_data_size; i++) {	//performs derivative calculations
 		result_data[i] = data[i+1] * (i+1);
 	}
-	
-	Polynomial result = Polynomial(result_data, result_data_size);
-	//result.print();
-	//cout << endl;
+	Polynomial result = Polynomial(result_data, result_data_size);	//stores results in new array object
 	return result;
 }
 
@@ -173,8 +166,26 @@ bool PolynomialTest::test_constructors()  {	//Tests the constructors
 		if (PC1.data[i] != A[i]) 
 			success = false;
 	}
-	//SECOND CONSTRUCTOR: hard to test for expected values since values are random
-	Polynomial PC2 = Polynomial();
+	//SECOND CONSTRUCTOR: hard to test for expected values since values are random (Manual testing required)
+	string yn = "";
+	Polynomial PC2_1 = Polynomial();
+	Polynomial PC2_2 = Polynomial();
+	Polynomial PC2_3 = Polynomial();
+	cout << PC2_1.getDegree() << endl;
+	cout << PC2_2.getDegree() << endl;
+	cout << PC2_3.getDegree() << endl;
+	
+	while (yn != "N" && yn != "n" && yn != "Y" && yn != "y"){
+	cout << "\nRandom Constructor Test:\n\nAre these 3 numbers (random polynomial degrees) different? Y/N" << endl;
+	cin >> yn;
+	if (yn == "N" || yn == "n"){
+		cout << "Random Constructor Test: Failed" << endl;
+		exit(1);
+	} else if (yn == "Y" || yn == "y")
+		cout << "Random Constructor Test: Passed" << endl;
+	else 
+		cout << "You failed to enter a correct response for the Random Constructor Test" << endl;
+	}
 	//THIRD CONSTRUCTOR
 	Polynomial PC3 = Polynomial("text.txt");
 	ifstream in_stream_test;
@@ -191,13 +202,15 @@ bool PolynomialTest::test_constructors()  {	//Tests the constructors
 		in_stream_test >> C[i];
 		i++;
 	}
+	for (int j = i - 1; j < size3; j++){
+		C[j] = 0;
+	}
 	in_stream_test.close();
 	//C[3] = 14; //Uncomment for failure
 	for (int i = 0; i < size3; i++) {
 		if (PC3.data[i] != C[i])
 			success = false;
 	}
-	//END OF CONSTRUCTOR TESTS
 	return success;
 }
 bool PolynomialTest::test_isEqual() {		 //Tests '==' operator
@@ -607,30 +620,31 @@ bool PolynomialTest::test_derivative() {	 //Tests derivative function
 	return success;
 }
 void PolynomialTest::test_print() {			 //Tests print function
-	cout << endl << "For Printing test, these should all look the same: " << endl;
+	cout << endl << "For Printing test, these should look the same: " << endl;
 	int A[8] = {-86,-72,-18,86,53,79,-63,-80};
 	int B[5] = {0,0,0,0,0};
 	int C[0];
 	Polynomial pA = Polynomial(A,8);
 	Polynomial pB = Polynomial(B,5);
 	Polynomial pC = Polynomial(C,0);
-	cout << "-86 - 72x - 18x^2 + 86x^3 + 53x^4 + 79x^5 - 63x^6 - 80x^7\n\t***AND***\n";
+	cout << "-86 - 72x - 18x^2 + 86x^3 + 53x^4 + 79x^5 - 63x^6 - 80x^7\n";
 	pA.print();
 	cout << endl << endl;
-	cout << "0 + 0x + 0x^2 + 0x^3 + 0x^4\n\t***AND***\n";
+	cout << "0 + 0x + 0x^2 + 0x^3 + 0x^4\n";
 	pB.print();
 	cout << endl;
 	pC.print();
 }
 
-void PolynomialTest::run() {					//Runs all tests
+void PolynomialTest::run() {			//Runs all tests	
 	bool pass = true;
 	//Test constructors check
 	if (test_constructors())
 		cout << "Test-Constructors: Passed" << endl;
 	else {
-		cout << "Test-Constructors1: Failed" << endl;
+		cout << "Test-Constructors: Failed" << endl;
 		pass = false;
+		exit(1);
 	}
 	//Test '==' operator check
 	if (test_isEqual())
@@ -638,6 +652,7 @@ void PolynomialTest::run() {					//Runs all tests
 	else {
 		cout << "Test-IsEqual: Failed" << endl;
 		pass = false;
+		exit(1);
 	}
 	//Test '+' operator check
 	if (test_addition())
@@ -645,6 +660,7 @@ void PolynomialTest::run() {					//Runs all tests
 	else {
 		cout << "Test-Addition: Failed" << endl;
 		pass = false;
+		exit(1);
 	}
 	//Test '-' operator check
 	if (test_subtraction())
@@ -652,6 +668,7 @@ void PolynomialTest::run() {					//Runs all tests
 	else {
 		cout << "Test-Subtraction: Failed" << endl;
 		pass = false;
+		exit(1);
 	}
 	//Test '*' operator check
 	if (test_multiplication())
@@ -659,6 +676,7 @@ void PolynomialTest::run() {					//Runs all tests
 	else {
 		cout << "Test-Multiplication: Failed" << endl;
 		pass = false;
+		exit(1);
 	}
 	//Test derivative check
 	if (test_derivative())
@@ -666,19 +684,22 @@ void PolynomialTest::run() {					//Runs all tests
 	else {
 		cout << "Test-Derivative: Failed" << endl;
 		pass = false;
+		exit(1);
 	}
 	//Test print check
 	string yn;
 	test_print();
 	cout << endl << "Are these the same? Y/N" << endl;
 	cin >> yn;
-	if (yn != "Y")
+	if (yn != "Y" && yn != "y"){
 		pass = false;
+		exit(1);
+	}
 	//Summary
 	if (pass)
 		cout << endl << "ALL TESTS SUCCESSFUL";
 	else
-		cout << endl << "TESTS UNSUCCESSFUL"; 
+		cout << endl << "TESTS UNSUCCESSFUL";
 }
 	
 int main() {	
