@@ -1,6 +1,3 @@
-//Nicholas Varabioff 20702729
-//Ryan Gangl 20737072
-
 #ifndef DRONES_MANAGER_HPP
 #define DRONES_MANAGER_HPP
 #include <iostream>
