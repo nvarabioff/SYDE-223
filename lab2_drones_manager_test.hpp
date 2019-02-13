@@ -1,6 +1,3 @@
-//Nicholas Varabioff 20702729
-//Ryan Gangl 20737072
-
 #ifndef DRONES_MANAGER_TEST
 #define DRONES_MANAGER_TEST
 
