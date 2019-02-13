@@ -1,6 +1,3 @@
-//Nicholas Varabioff 20702729
-//Ryan Gangl 20737072
-
 #include "lab2_drones_manager.hpp"
 #include <iostream>
 #include <string>
