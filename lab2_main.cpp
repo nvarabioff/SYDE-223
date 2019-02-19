@@ -2,6 +2,8 @@
 #include <string>
 
 #include "lab2_drones_manager_test.hpp"
+#include "lab2_drones_manager.hpp"
+#include "lab2_drones_manager.cpp"
 
 using namespace std;
 
@@ -30,7 +32,7 @@ int main() {
 	bool test_results[12];
     test_results[0] = drones_manager_test.test1();
     test_results[1] = drones_manager_test.test2();
-    test_results[2] = drones_manager_test.test3();
+	test_results[2] = drones_manager_test.test3();
     test_results[3] = drones_manager_test.test4();
     test_results[4] = drones_manager_test.test5();
     test_results[5] = drones_manager_test.test6();
