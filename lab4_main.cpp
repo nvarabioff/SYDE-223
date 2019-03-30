@@ -59,7 +59,7 @@ int main() {
     bst_test_results[3] = bst_test.test4();
     bst_test_results[4] = bst_test.test5();
     bst_test_results[5] = bst_test.test6();
-    //bst_test_results[6] = bst_test.test7();
+    bst_test_results[6] = bst_test.test7();
     bst_test_results[7] = bst_test.test8();
 
 	cout << "BINARY SEARCH TREE TESTING RESULTS \n";
