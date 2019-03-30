@@ -11,7 +11,7 @@
 #include "lab4_priority_queue.hpp"
 #include "lab4_binary_search_tree.hpp"
 
-class PriorityQueueTest {	//COMPLETE
+class PriorityQueueTest {
 public:
 	// PURPOSE: Tests if the new queue is valid
 	bool test1() {
@@ -125,7 +125,7 @@ public:
 	}
 
 	// PURPOSE: Tests if the new tree is valid
-	bool test1() {	//PASSED
+	bool test1() {
 		std::string expected_tree_level_order = "";
     
 		BinarySearchTree bst;
@@ -139,7 +139,7 @@ public:
 	}
 
 	// PURPOSE: Tests a tree with one node
-	bool test2() {	//PASSED
+	bool test2() {
 		std::string expected_tree_level_order = "5";
     
 		BinarySearchTree bst;
@@ -155,7 +155,7 @@ public:
 	}
 
 	// PURPOSE: Tests insert, remove, and size on linear list formation with three elements
-	bool test3() {	//PASSED
+	bool test3() {
 		std::string expected_tree_level_order = "10 8";
     
 		BinarySearchTree bst;
@@ -174,7 +174,7 @@ public:
 	}
 
 	// PURPOSE: Tests removal of a node with one child
-	bool test4() {	//PASSED
+	bool test4() {
 		std::string expected_tree = "3 2 6";
   
 		BinarySearchTree bst;
@@ -190,7 +190,7 @@ public:
 	}
 
 	// PURPOSE: Tests insert of multiple elements and remove till nothing remains
-	bool test5() {	//PASSED
+	bool test5() {
 		std::string expected_tree = "";
   
 		BinarySearchTree bst;  
@@ -211,7 +211,7 @@ public:
 	}
  
 	// PURPOSE: Tests removal of root node when both children of root have two children
-	bool test6() {	//PASSED
+	bool test6() {
 		std::string expected_tree1 = "6 3 10 1 9 15";
 		std::string expected_tree2 = "9 3 10 1 6 15";
   
@@ -250,7 +250,7 @@ public:
 	}
 
 	// PURPOSE: Tests lots of inserts and removes
-	bool test8() {	//PASSED
+	bool test8() {
 		std::string expected_tree = "8 2 9 1 7 4 3 5 6";
   
 		BinarySearchTree bst;
