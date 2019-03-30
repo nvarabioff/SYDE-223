@@ -25,35 +25,38 @@ unsigned int BinarySearchTree::get_size() const {
 // PURPOSE: Returns the maximum value of a node in the tree
 // if the tree is empty, it returns (-1, "N/A")
 BinarySearchTree::TaskItem BinarySearchTree::max() const {
-	//traverse to the right child of the root node, if a right child exists
-	//at current node, if right child exists, traverse, otherwise, current node has highest key value
+	if (root == NULL)
+		return TaskItem(-1, "N/A");
 	TaskItem *temp = root;
 	while (temp->right != NULL) {
 		temp = temp->right;
 	}
+	//temp will be the furthest right node, which is the max
 	return *temp;
 }
 
 // PURPOSE: Returns the minimum value of a node in the tree
 // if the tree is empty, it returns (-1, "N/A")
 BinarySearchTree::TaskItem BinarySearchTree::min() const {
+	if (root == NULL)
+		return TaskItem(-1, "N/A");
 	TaskItem *temp = root;
 	while (temp->left != NULL) {
 		temp = temp->left;
 	}
+	//temp will be the furthest left node, which is the min
 	return *temp;
 }
 
 // PURPOSE: Returns the tree height
-unsigned int BinarySearchTree::height() const {	//NOT DONE - TEST7
-	unsigned int h = 0;
-
-	return h;
+unsigned int BinarySearchTree::height() const {
+	return get_node_depth(root);
 }
 
 // PURPOSE: Prints the contents of the tree; format not specified
 void BinarySearchTree::print() const {
 	//prints with breadth first traversal
+	cout << "PRINTING BREADTH-FIRST TREE: " << endl;
 	if (root == NULL) {
       	cout << "";
     } else {
@@ -81,19 +84,19 @@ void BinarySearchTree::print() const {
 // PURPOSE: Returns true if a node with the value val exists in the tree	
 // otherwise, returns false
 bool BinarySearchTree::exists( BinarySearchTree::TaskItem val ) const {
-	TaskItem *find = new TaskItem(val);
+	TaskItem *find = new TaskItem(val);	//node we are looking for
 	TaskItem *temp = root;
-	if (root == NULL) {
+	if (root == NULL) {	//obviously doesn't exist if root is null
 		return false;
-	} else if (find->priority == temp->priority) {
+	} else if (find->priority == temp->priority) {	//if root is the one we're looking for
 		return true;
 	}
-	while (temp->left || temp->right) {
-		if (find->priority == temp->priority) {
+	while (temp->left || temp->right) {	//while current root is not a leaf node
+		if (find->priority == temp->priority) {	//if current node is the one we're looking for
 			return true;
-		} else if (find->priority > temp->priority && temp->right) {
+		} else if (find->priority > temp->priority && temp->right) {	//if right child exists and k > kc, move to the right
 			temp = temp->right;
-		} else if (find->priority < temp->priority && temp->left) {
+		} else if (find->priority < temp->priority && temp->left) {		//if left child exists and k < kc, move to the left
 			temp = temp->left;
 		} 
 	}
@@ -111,41 +114,42 @@ BinarySearchTree::TaskItem** BinarySearchTree::get_root_node_address() {
 }
 
 // PURPOSE: Optional helper function that gets the maximum depth for a given node
-int BinarySearchTree::get_node_depth( BinarySearchTree::TaskItem* n ) const {	//OPTIONAL - LATER
-	TaskItem *temp = root;
-	int count = 0;
-	if (n == temp) {
-		return count;
-	} else {
-		count++;
-		
-	}
-	
-	
-	return count;
+int BinarySearchTree::get_node_depth( BinarySearchTree::TaskItem* n ) const {
+	if (n == NULL)	//if empty tree
+        return -1;
+    else {
+        int leftD = get_node_depth(n->left);
+        int rightD = get_node_depth(n->right);
+        
+        if (leftD > rightD)
+            return (leftD + 1);
+        else
+            return (rightD + 1);
+    }
 }
 
 // PURPOSE: Inserts the value val into the tree if it is unique
 // returns true if successful; returns false if val already exists
 bool BinarySearchTree::insert( BinarySearchTree::TaskItem val ) {
 	TaskItem *temp = root;
-	TaskItem *ins = new TaskItem(val);
-	if (root == NULL) {
+	TaskItem *ins = new TaskItem(val);	//node we are inserting
+	if (root == NULL) {	//if tree is empty, node goes to the root
 		root = ins;
 		size++;
 		return true;
 	}
-	while (temp != NULL) {
-		if (ins->priority == temp->priority) {
+	while (temp != NULL) {	
+		if (ins->priority == temp->priority) {	//if node already exists in tree
 			return false;
-		} else if (ins->priority < temp->priority && temp->left != NULL) {
+		} else if (ins->priority < temp->priority && temp->left) {	//if left child exists and k < kc, move to the left
 			temp = temp->left;
-		} else if (ins->priority > temp->priority && temp->right != NULL) {
+		} else if (ins->priority > temp->priority && temp->right) {	//if right child exists and k > kc, move to the right
 			temp = temp->right;
-		} else {
+		} else {	//if no children exist in the required direction, exit the loop
 			break;
 		}
 	}
+	//temp will be the parent of the node to be inserted
 	if (ins->priority < temp->priority) {
 		temp->left = ins;
 		size++;
@@ -161,102 +165,109 @@ bool BinarySearchTree::insert( BinarySearchTree::TaskItem val ) {
 // PURPOSE: Removes the node with the value val from the tree
 // returns true if successful; returns false otherwise
 bool BinarySearchTree::remove( BinarySearchTree::TaskItem val ) {
-	if (root == NULL) {
+	if (root == NULL) {	//if tree is empty, can't remove anything
 		return false;
 	}
-	TaskItem *del = new TaskItem(val);
-	TaskItem *tester = root;
-	TaskItem *parent = root;
+	TaskItem *del = new TaskItem(val);	//node to be deleted
+	TaskItem *tester = root;	//current node
+	TaskItem *parent = root;	//current node's parent
 	while (tester != NULL) {
-		if (del->priority < tester->priority && tester->left != NULL) {
+		if (del->priority < tester->priority && tester->left) {
 			parent = tester;
 			tester = tester->left;
-		} else if (del->priority > tester->priority && tester->right != NULL) {
+		} else if (del->priority > tester->priority && tester->right) {
 			parent = tester;
 			tester = tester->right;
-		} else {
+		} else {	//if no child exists in the required direction, exit the loop
 			break;
 		}
 	}
 	//tester is the node that will be deleted
-	if (tester->priority != del->priority) {
-		return false;
+	//parent is the parent of tester node
+	if (tester->priority != del->priority) {	//check to confirm the above statement
+		return false;							//if false, the node to be removed doesn't exist
 	}
-	//1. Node being deleted is leaf node
+	
+	//CASE 1: Node being deleted is leaf node
 	if (tester->left == NULL && tester->right == NULL) {
 		//delete that node directly
-		size--;
-		if (del->priority == root->priority) {
-			root = NULL; //potential memory issues here
-		} else if (del->priority < parent->priority) {
+		if (del->priority == root->priority) {	//check for root
+			root = NULL;
+		} else if (del->priority < parent->priority) {	//must change the parent's left/right pointer
 			parent->left = NULL;
-		}
-		else if (del->priority > parent->priority) {
+		} else if (del->priority > parent->priority) { //must change the parent's left/right pointer
 			parent->right = NULL;
 		}
-		delete tester;
-		//tester = NULL;
-		//delete del;
-		//delete parent;
+		tester = NULL;
+		delete del;
+		del = NULL;
+		parent = NULL;
+		size--;
 		return true;
 	}
 	
-	//2. Node being deleted has one child
+	//CASE 2: Node being deleted has one child
 	//Create a temp pointer to the node being deleted
 	//link the parent node to the child node
 	//delete the node pointed to by the temporary pointer
-	if (tester->left != NULL && tester->right == NULL) {
-		if (del->priority == root->priority) {
-			root = root->left; //potential memory issues here
-		} else if (del->priority < parent->priority) {
-			parent->left = tester->left;
+	if (tester->left && tester->right == NULL) {	//if the one child is a left child
+		if (del->priority == root->priority) {	//check root
+			root = root->left; //root now points to its left child
+		} else if (del->priority < parent->priority) {	
+			parent->left = tester->left;	//bypasses tester, edits parent's left child
 		} else if (del->priority > parent->priority) {
-			parent->right = tester->left;
+			parent->right = tester->left;	//bypasses tester, edits parent's right child
 		}
-		delete tester;
-		//delete del;
-		//delete parent;
+		tester = NULL;
+		delete del;
+		del = NULL;
+		parent = NULL;
 		size--;
 		return true;
 	}
-	else if (tester->right != NULL && tester->left == NULL) {
-		if (del->priority == root->priority) {
-			root = root->right; //potential memory issues here
+	else if (tester->right && tester->left == NULL) { //if the one child is a right child
+		if (del->priority == root->priority) {	//check root
+			root = root->right; //root now points to its right child
 		} else if (del->priority < parent->priority) {
-			parent->left = tester->right;
+			parent->left = tester->right;	//bypasses tester, edits parent's left child
 		} else if (del->priority > parent->priority) {
-			parent->right = tester->right;
+			parent->right = tester->right;	//bypasses tester edits parent's right child
 		}
-		delete tester;
-		//delete del;
-		//delete parent;
+		tester = NULL;
+		delete del;
+		del = NULL;
+		parent = NULL;
 		size--;
 		return true;	
 	}
-	//3. Node being deleted has 2 children
+	
+	
+	//CASE 3: Node being deleted has 2 children
 	//find min of right subtree, copy that value
-	TaskItem *temp = tester->right; //tester is the root
+	TaskItem *temp = tester->right; //tester is the root of right subtree
 	while (temp->left != NULL) {
 		temp = temp->left;
 	}
-	//temp now has the minimum value
+	//temp now has the minimum value of right subtree
 	
 	//replace node to be deleted with that value
 	//delete the node that you took the min value from
-	if (del->priority == root->priority) {
-		remove(*temp);
+	if (del->priority == root->priority) {	//check root
+		remove(*temp);	//recursively remove the min node, will have either 0 or 1 child
 		root->priority = temp->priority;
 		root->description = temp->description;
 		size--;
 		return true;
 	} else if (del->priority < parent->priority) {
-		remove(*temp);
+		remove(*temp);	//recursively remove the min node, will have either 0 or 1 child
 		parent->left->priority = temp->priority;
+		parent->left->description = temp->description;
 		size--;
 		return true;
 	} else if (del->priority > parent->priority) {
-		remove(*temp);
+		remove(*temp);	//recursively remove the min node, will have either 0 or 1 child
 		parent->right->priority = temp->priority;
+		parent->right->description = temp->description;
 		size--;
 		return true;
 	}
