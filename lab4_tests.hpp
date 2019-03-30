@@ -1,109 +1,65 @@
-#ifndef LAB4_TESTS_HPP
-#define LAB4_TESTS_HPP
-
-#define ASSERT_TRUE(T) if (!(T)) return false;
-#define ASSERT_FALSE(T) if ((T)) return false;
-
-#include <algorithm>
+#include <iostream>
 #include <sstream>
 #include <queue>
 
-#include "lab4_priority_queue.hpp"
 #include "lab4_binary_search_tree.hpp"
 
-class PriorityQueueTest {
-public:
-	// PURPOSE: Tests if the new queue is valid
-	bool test1() {
-		PriorityQueue q(5);
-		ASSERT_TRUE( q.empty() );
-		ASSERT_TRUE( !q.full() );
-		ASSERT_TRUE( q.get_size() == 0 );
-		return true;
+using namespace std;
+
+// PURPOSE: Default/empty constructor
+BinarySearchTree::BinarySearchTree() {
+	root = NULL;
+	size = 0;
+}
+
+// PURPOSE: Explicit destructor of the class BinarySearchTree
+BinarySearchTree::~BinarySearchTree() {
+	delete root;
+}
+
+// PURPOSE: Returns the number of nodes in the tree
+unsigned int BinarySearchTree::get_size() const {
+	return size;
+}
+
+// PURPOSE: Returns the maximum value of a node in the tree
+// if the tree is empty, it returns (-1, "N/A")
+BinarySearchTree::TaskItem BinarySearchTree::max() const {
+	if (root == NULL)
+		return TaskItem(-1, "N/A");
+	TaskItem *temp = root;
+	while (temp->right != NULL) {
+		temp = temp->right;
 	}
+	//temp will be the furthest right node, which is the max
+	return *temp;
+}
 
-	// PURPOSE: Tests enqueue of one item and then dequeue of that item
-	bool test2() {
-		PriorityQueue q(2);
-		ASSERT_TRUE( q.enqueue(PriorityQueue::TaskItem(10,"Test Task")) );
-		ASSERT_TRUE( !q.empty() );
-		ASSERT_TRUE( !q.full() );
-		ASSERT_TRUE( q.get_size() == 1 );
-		ASSERT_TRUE( q.max().priority == 10 );
-
-		ASSERT_TRUE( q.dequeue() );
-		ASSERT_TRUE( q.empty() );
-		ASSERT_TRUE( !q.full() );
-		ASSERT_TRUE( q.get_size() == 0 );
-		return true;
+// PURPOSE: Returns the minimum value of a node in the tree
+// if the tree is empty, it returns (-1, "N/A")
+BinarySearchTree::TaskItem BinarySearchTree::min() const {
+	if (root == NULL)
+		return TaskItem(-1, "N/A");
+	TaskItem *temp = root;
+	while (temp->left != NULL) {
+		temp = temp->left;
 	}
+	//temp will be the furthest left node, which is the min
+	return *temp;
+}
 
-	// PURPOSE: Tests enqueue too many
-	bool test3() {
-		PriorityQueue q(3);
-		ASSERT_TRUE( q.enqueue(PriorityQueue::TaskItem(5,"Test Task")) );
-		//q.print();
-		ASSERT_TRUE( q.max().priority == 5 );
-		ASSERT_TRUE( q.enqueue(PriorityQueue::TaskItem(3,"Test Task")) );
-		//q.print();
-		ASSERT_TRUE( q.max().priority == 5 );
-		ASSERT_TRUE( q.enqueue(PriorityQueue::TaskItem(4,"Test Task")) );
-		//q.print();
-		ASSERT_TRUE( q.max().priority == 5 );
-		ASSERT_TRUE( q.full() );
+// PURPOSE: Returns the tree height
+unsigned int BinarySearchTree::height() const {
+	return get_node_depth(root);
+}
 
-		ASSERT_TRUE( !q.enqueue(PriorityQueue::TaskItem(7,"Test Task")) );
-		ASSERT_TRUE( q.max().priority == 5 );
-		ASSERT_TRUE( q.full() );
-		return true;
-	}
-  
-	// PURPOSE: Tests enqueue too many then dequeue too many
-	bool test4() {
-		PriorityQueue q(3);
-		ASSERT_TRUE( q.enqueue(PriorityQueue::TaskItem(5,"Test Task")) );
-		ASSERT_TRUE( q.max().priority == 5 );
-		ASSERT_TRUE( q.enqueue(PriorityQueue::TaskItem(3,"Test Task")) );
-		ASSERT_TRUE( q.max().priority == 5 );
-		ASSERT_TRUE( q.enqueue(PriorityQueue::TaskItem(4,"Test Task")) );
-		ASSERT_TRUE( q.max().priority == 5 );
-		ASSERT_TRUE( q.full() );
-
-		ASSERT_TRUE( !q.enqueue(PriorityQueue::TaskItem(7,"Test Task")) );
-		ASSERT_TRUE( q.max().priority == 5 );
-		ASSERT_TRUE( q.full() );
-
-		ASSERT_TRUE( q.dequeue() );
-		ASSERT_TRUE( q.max().priority == 4 );
-		ASSERT_TRUE( q.dequeue() );
-		ASSERT_TRUE( q.max().priority == 3 );
-		ASSERT_TRUE( q.dequeue() );
-		ASSERT_TRUE( q.empty() );
-		ASSERT_TRUE( !q.full() );
-
-		ASSERT_TRUE( !q.dequeue() );
-		ASSERT_TRUE( q.empty() );
-		ASSERT_TRUE( !q.full() );
-		return true;
-	}
-};
-
-class BinarySearchTreeTest {
-public:
-	bool insert_nodes(BinarySearchTree &tree, int *in, int nin) {
-		for(int i = 0; i < nin; i++) {
-			ASSERT_TRUE(tree.insert(BinarySearchTree::TaskItem(in[i],"Test Task")));
-		}
-		return true;
-	}
-
-	// PURPOSE: Traverse the tree using breadth-first traversal
-	// Output is as follows: "val1 val2 ... valN"
-	std::string level_order(BinarySearchTree::TaskItem* root) {
-		if (!root) {
-      		return "";
-    	}    
-
+// PURPOSE: Prints the contents of the tree; format not specified
+void BinarySearchTree::print() const {
+	//prints with breadth first traversal
+	cout << "PRINTING BREADTH-FIRST TREE: " << endl;
+	if (root == NULL) {
+      	cout << "";
+    } else {
 		std::stringstream ss;
 		std::queue<BinarySearchTree::TaskItem*> node_queue;
 		node_queue.push(root);
@@ -118,151 +74,202 @@ public:
 				node_queue.push(cur_node->right);
 			}
 		}
-    
+	    
 		std::string level_order_str = ss.str();
-
-		return level_order_str.substr(0, level_order_str.size() - 1);
+	
+		cout << level_order_str.substr(0, level_order_str.size() - 1) << endl;
 	}
+}
 
-	// PURPOSE: Tests if the new tree is valid
-	bool test1() {
-		std::string expected_tree_level_order = "";
-    
-		BinarySearchTree bst;
-		ASSERT_TRUE(bst.root == NULL);
-		ASSERT_TRUE(bst.size == 0 && bst.get_size() == 0);
-    
-		// compare the tree's representation to the expected tree
-		std::string tree_level_order = level_order(bst.root);
-		ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
+// PURPOSE: Returns true if a node with the value val exists in the tree	
+// otherwise, returns false
+bool BinarySearchTree::exists( BinarySearchTree::TaskItem val ) const {
+	TaskItem *find = new TaskItem(val);	//node we are looking for
+	TaskItem *temp = root;
+	if (root == NULL) {	//obviously doesn't exist if root is null
+		return false;
+	} else if (find->priority == temp->priority) {	//if root is the one we're looking for
 		return true;
 	}
+	while (temp->left || temp->right) {	//while current root is not a leaf node
+		if (find->priority == temp->priority) {	//if current node is the one we're looking for
+			return true;
+		} else if (find->priority > temp->priority && temp->right) {	//if right child exists and k > kc, move to the right
+			temp = temp->right;
+		} else if (find->priority < temp->priority && temp->left) {		//if left child exists and k < kc, move to the left
+			temp = temp->left;
+		} 
+	}
+	return false;
+}
 
-	// PURPOSE: Tests a tree with one node
-	bool test2() {
-		std::string expected_tree_level_order = "5";
-    
-		BinarySearchTree bst;
-		ASSERT_TRUE(bst.insert(BinarySearchTree::TaskItem(5,"Test Task")));
-		ASSERT_TRUE(!bst.remove(BinarySearchTree::TaskItem(4,"Test Task")));
-		ASSERT_TRUE(bst.exists(BinarySearchTree::TaskItem(5,"Test Task")));
-		ASSERT_TRUE(bst.max() == bst.min() && bst.max() == BinarySearchTree::TaskItem(5,"Test Task"));
-		ASSERT_TRUE(bst.get_size() == 1);
-    
-		std::string tree_level_order = level_order(bst.root);
-		ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
+// PURPOSE: Optional helper function that returns a pointer to the root node
+BinarySearchTree::TaskItem* BinarySearchTree::get_root_node() {
+    return root;
+}
+
+// PURPOSE: Optional helper function that returns the root node pointer address
+BinarySearchTree::TaskItem** BinarySearchTree::get_root_node_address() {
+    return &root;
+}
+
+// PURPOSE: Optional helper function that gets the maximum depth for a given node
+int BinarySearchTree::get_node_depth( BinarySearchTree::TaskItem* n ) const {
+	if (n == NULL)	//if empty tree
+        return -1;
+    else {
+        int leftD = get_node_depth(n->left);
+        int rightD = get_node_depth(n->right);
+        
+        if (leftD > rightD)
+            return (leftD + 1);
+        else
+            return (rightD + 1);
+    }
+}
+
+// PURPOSE: Inserts the value val into the tree if it is unique
+// returns true if successful; returns false if val already exists
+bool BinarySearchTree::insert( BinarySearchTree::TaskItem val ) {
+	TaskItem *temp = root;
+	TaskItem *ins = new TaskItem(val);	//node we are inserting
+	if (root == NULL) {	//if tree is empty, node goes to the root
+		root = ins;
+		size++;
 		return true;
 	}
-
-	// PURPOSE: Tests insert, remove, and size on linear list formation with three elements
-	bool test3() {
-		std::string expected_tree_level_order = "10 8";
-    
-		BinarySearchTree bst;
-		ASSERT_TRUE(bst.insert(BinarySearchTree::TaskItem(10,"Test Task")));
-		ASSERT_TRUE(bst.insert(BinarySearchTree::TaskItem(8,"Test Task")));
-		ASSERT_TRUE(bst.get_size() == 2);
-		ASSERT_TRUE(bst.insert(BinarySearchTree::TaskItem(65,"Test Task")));
-		ASSERT_TRUE(bst.get_size() == 3);
-		
-		ASSERT_TRUE(bst.remove(BinarySearchTree::TaskItem(65,"Test Task")));
-		ASSERT_TRUE(bst.get_size() == 2);
-		
-		std::string tree_level_order = level_order(bst.root);
-		ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
-		return true;
-	}
-
-	// PURPOSE: Tests removal of a node with one child
-	bool test4() {
-		std::string expected_tree = "3 2 6";
-  
-		BinarySearchTree bst;
-		ASSERT_TRUE(bst.insert(BinarySearchTree::TaskItem(3,"Test Task")));
-		ASSERT_TRUE(bst.insert(BinarySearchTree::TaskItem(7,"Test Task")));
-		ASSERT_TRUE(bst.insert(BinarySearchTree::TaskItem(6,"Test Task")));
-		ASSERT_TRUE(bst.insert(BinarySearchTree::TaskItem(2,"Test Task")));
-  
-		ASSERT_TRUE(bst.remove(BinarySearchTree::TaskItem(7,"Test Task")));
-		ASSERT_TRUE(!bst.exists(BinarySearchTree::TaskItem(7,"Test Task")));
-		ASSERT_TRUE(level_order(bst.root).compare(expected_tree) == 0)
-		return true;
-	}
-
-	// PURPOSE: Tests insert of multiple elements and remove till nothing remains
-	bool test5() {
-		std::string expected_tree = "";
-  
-		BinarySearchTree bst;  
-		int in[] = {8, 3, 10, 15};
-  
-		ASSERT_TRUE(insert_nodes(bst, in, 4));
-		ASSERT_TRUE(!bst.remove(BinarySearchTree::TaskItem(9,"Test Task")));
-		ASSERT_TRUE(bst.remove(BinarySearchTree::TaskItem(8,"Test Task")));
-		ASSERT_TRUE(bst.max() == BinarySearchTree::TaskItem(15,"Test Task"));
-		ASSERT_TRUE(bst.remove(BinarySearchTree::TaskItem(15,"Test Task")));
-		ASSERT_TRUE(bst.max() == BinarySearchTree::TaskItem(10,"Test Task"));
-		ASSERT_TRUE(bst.min() == BinarySearchTree::TaskItem(3,"Test Task"));
-		ASSERT_TRUE(bst.remove(BinarySearchTree::TaskItem(10,"Test Task")));
-		ASSERT_TRUE(bst.remove(BinarySearchTree::TaskItem(3,"Test Task")));
-		ASSERT_TRUE(bst.root== NULL);
-		ASSERT_TRUE(level_order(bst.root).compare(expected_tree) == 0)
-		return true;
-	}
- 
-	// PURPOSE: Tests removal of root node when both children of root have two children
-	bool test6() {
-		std::string expected_tree1 = "6 3 10 1 9 15";
-		std::string expected_tree2 = "9 3 10 1 6 15";
-  
-		BinarySearchTree bst;
-		int in[] = {8, 3, 10, 1, 6, 9, 15};
-  
-		ASSERT_TRUE(insert_nodes(bst, in, 7));
-		ASSERT_TRUE(!bst.remove(BinarySearchTree::TaskItem(12,"Test Task")));
-		ASSERT_TRUE(bst.remove(BinarySearchTree::TaskItem(8,"Test Task")));
-		ASSERT_TRUE(level_order(bst.root).compare(expected_tree1) == 0 ||
-              level_order(bst.root).compare(expected_tree2) == 0)
-		return true;
-	}
-
-	// PURPOSE: Tests depth with many inserts and some removes
-	bool test7() {
-		std::string expected_tree = "0 -5 10 -2 1 -4 -1";
-  
-		BinarySearchTree bst;
-		ASSERT_TRUE(bst.insert(BinarySearchTree::TaskItem(0,"Test Task")));
-		ASSERT_TRUE(bst.height() == 0)
-		ASSERT_TRUE(bst.insert(BinarySearchTree::TaskItem(10,"Test Task")));
-		ASSERT_TRUE(bst.height() == 1)
-		ASSERT_TRUE(bst.insert(BinarySearchTree::TaskItem(-5,"Test Task")));
-		ASSERT_TRUE(bst.height() == 1)
-		ASSERT_TRUE(bst.insert(BinarySearchTree::TaskItem(-2,"Test Task")));
-		ASSERT_TRUE(bst.height() == 2);
-		ASSERT_TRUE(bst.insert(BinarySearchTree::TaskItem(-4,"Test Task")));
-		ASSERT_TRUE(bst.height() == 3);
-		ASSERT_TRUE(bst.insert(BinarySearchTree::TaskItem(-1,"Test Task")));
-		ASSERT_TRUE(bst.height() == 3);
-		ASSERT_TRUE(bst.insert(BinarySearchTree::TaskItem(1,"Test Task")));
-		ASSERT_TRUE(bst.height() == 3);
-		ASSERT_TRUE(level_order(bst.root).compare(expected_tree) == 0)
-		return true;
-	}
-
-	// PURPOSE: Tests lots of inserts and removes
-	bool test8() {
-		std::string expected_tree = "8 2 9 1 7 4 3 5 6";
-  
-		BinarySearchTree bst;
-		int in[] = {8, 2, 7, 4, 5, 3, 1, 9, 6};
-		int nin = 9;
-		ASSERT_TRUE(insert_nodes(bst, in, nin));
-		ASSERT_TRUE(level_order(bst.root).compare(expected_tree) == 0)
-		for(int i = 0; i < nin; ++i) {
-			ASSERT_TRUE(bst.remove(BinarySearchTree::TaskItem(in[i],"Test Task")));
+	while (temp != NULL) {	
+		if (ins->priority == temp->priority) {	//if node already exists in tree
+			return false;
+		} else if (ins->priority < temp->priority && temp->left) {	//if left child exists and k < kc, move to the left
+			temp = temp->left;
+		} else if (ins->priority > temp->priority && temp->right) {	//if right child exists and k > kc, move to the right
+			temp = temp->right;
+		} else {	//if no children exist in the required direction, exit the loop
+			break;
 		}
-		ASSERT_TRUE(!bst.remove(BinarySearchTree::TaskItem(in[0],"Test Task")));
+	}
+	//temp will be the parent of the node to be inserted
+	if (ins->priority < temp->priority) {
+		temp->left = ins;
+		size++;
+		return true;
+	} else if (ins->priority > temp->priority) {
+		temp->right = ins;
+		size++;
 		return true;
 	}
-};
-#endif
+	return false;
+}
+
+// PURPOSE: Removes the node with the value val from the tree
+// returns true if successful; returns false otherwise
+bool BinarySearchTree::remove( BinarySearchTree::TaskItem val ) {
+	if (root == NULL) {	//if tree is empty, can't remove anything
+		return false;
+	}
+	TaskItem *del = new TaskItem(val);	//node to be deleted
+	TaskItem *tester = root;	//current node
+	TaskItem *parent = root;	//current node's parent
+	while (tester != NULL) {
+		if (del->priority < tester->priority && tester->left) {
+			parent = tester;
+			tester = tester->left;
+		} else if (del->priority > tester->priority && tester->right) {
+			parent = tester;
+			tester = tester->right;
+		} else {	//if no child exists in the required direction, exit the loop
+			break;
+		}
+	}
+	//tester is the node that will be deleted
+	//parent is the parent of tester node
+	if (tester->priority != del->priority) {	//check to confirm the above statement
+		return false;							//if false, the node to be removed doesn't exist
+	}
+	
+	//CASE 1: Node being deleted is leaf node
+	if (tester->left == NULL && tester->right == NULL) {
+		//delete that node directly
+		if (del->priority == root->priority) {	//check for root
+			root = NULL;
+		} else if (del->priority < parent->priority) {	//must change the parent's left/right pointer
+			parent->left = NULL;
+		} else if (del->priority > parent->priority) { //must change the parent's left/right pointer
+			parent->right = NULL;
+		}
+		tester = NULL;
+		delete del;
+		del = NULL;
+		parent = NULL;
+		size--;
+		return true;
+	}
+	
+	//CASE 2: Node being deleted has one child
+	//Create a temp pointer to the node being deleted
+	//link the parent node to the child node
+	//delete the node pointed to by the temporary pointer
+	if (tester->left && tester->right == NULL) {	//if the one child is a left child
+		if (del->priority == root->priority) {	//check root
+			root = root->left; //root now points to its left child
+		} else if (del->priority < parent->priority) {	
+			parent->left = tester->left;	//bypasses tester, edits parent's left child
+		} else if (del->priority > parent->priority) {
+			parent->right = tester->left;	//bypasses tester, edits parent's right child
+		}
+		tester = NULL;
+		delete del;
+		del = NULL;
+		parent = NULL;
+		size--;
+		return true;
+	}
+	else if (tester->right && tester->left == NULL) { //if the one child is a right child
+		if (del->priority == root->priority) {	//check root
+			root = root->right; //root now points to its right child
+		} else if (del->priority < parent->priority) {
+			parent->left = tester->right;	//bypasses tester, edits parent's left child
+		} else if (del->priority > parent->priority) {
+			parent->right = tester->right;	//bypasses tester edits parent's right child
+		}
+		tester = NULL;
+		delete del;
+		del = NULL;
+		parent = NULL;
+		size--;
+		return true;	
+	}
+	
+	
+	//CASE 3: Node being deleted has 2 children
+	//find min of right subtree, copy that value
+	TaskItem *temp = tester->right; //tester is the root of right subtree
+	while (temp->left != NULL) {
+		temp = temp->left;
+	}
+	//temp now has the minimum value of right subtree
+	
+	//replace node to be deleted with that value
+	//delete the node that you took the min value from
+	if (del->priority == root->priority) {	//check root
+		remove(*temp);	//recursively remove the min node, will have either 0 or 1 child
+		root->priority = temp->priority;
+		root->description = temp->description;
+		size--;
+		return true;
+	} else if (del->priority < parent->priority) {
+		remove(*temp);	//recursively remove the min node, will have either 0 or 1 child
+		parent->left->priority = temp->priority;
+		parent->left->description = temp->description;
+		size--;
+		return true;
+	} else if (del->priority > parent->priority) {
+		remove(*temp);	//recursively remove the min node, will have either 0 or 1 child
+		parent->right->priority = temp->priority;
+		parent->right->description = temp->description;
+		size--;
+		return true;
+	}
+		
+}
