@@ -1,3 +1,6 @@
+//Nicholas Varabioff 20702729
+//Ryan Gangl 20737072
+
 #include <iostream>
 #include <sstream>
 #include <queue>
@@ -15,8 +18,8 @@ BinarySearchTree::BinarySearchTree() {
 // PURPOSE: Removes tree nodes using postorder traversal - helper function
 void BinarySearchTree::PostOrder(TaskItem* T) {
 	if (!T) return;	
-	if (T->left) PostOrder(T->left); // enqueue left
-	if (T->right) PostOrder(T->right); // enqueue right
+	if (T->left) PostOrder(T->left);
+	if (T->right) PostOrder(T->right);
 	delete T;
 }
 
@@ -34,7 +37,7 @@ unsigned int BinarySearchTree::get_size() const {
 // if the tree is empty, it returns (-1, "N/A")
 BinarySearchTree::TaskItem BinarySearchTree::max() const {
 	if (root == NULL)
-		return TaskItem(-1, "N/A");
+		return BinarySearchTree::TaskItem(-1, "N/A");
 	TaskItem *temp = root;
 	while (temp->right != NULL) {
 		temp = temp->right;
@@ -47,7 +50,7 @@ BinarySearchTree::TaskItem BinarySearchTree::max() const {
 // if the tree is empty, it returns (-1, "N/A")
 BinarySearchTree::TaskItem BinarySearchTree::min() const {
 	if (root == NULL)
-		return TaskItem(-1, "N/A");
+		return BinarySearchTree::TaskItem(-1, "N/A");
 	TaskItem *temp = root;
 	while (temp->left != NULL) {
 		temp = temp->left;
@@ -98,15 +101,18 @@ bool BinarySearchTree::exists( BinarySearchTree::TaskItem val ) const {
 		return false;
 	} else if (find->priority == temp->priority) {	//if root is the one we're looking for
 		return true;
-	}
-	while (temp->left || temp->right) {	//while current root is not a leaf node
-		if (find->priority == temp->priority) {	//if current node is the one we're looking for
-			return true;
-		} else if (find->priority > temp->priority && temp->right) {	//if right child exists and k > kc, move to the right
-			temp = temp->right;
-		} else if (find->priority < temp->priority && temp->left) {		//if left child exists and k < kc, move to the left
-			temp = temp->left;
-		} 
+	} else {
+		while (temp->left || temp->right) {	//while current root is not a leaf node
+			if (find->priority == temp->priority) {	//if current node is the one we're looking for
+				return true;
+			} else if (find->priority > temp->priority && temp->right) {	//if right child exists and k > kc, move to the right
+				temp = temp->right;
+			} else if (find->priority < temp->priority && temp->left) {		//if left child exists and k < kc, move to the left
+				temp = temp->left;
+			} else {
+				return false;
+			}
+		}
 	}
 	return false;
 }
@@ -139,6 +145,7 @@ int BinarySearchTree::get_node_depth( BinarySearchTree::TaskItem* n ) const {
 // PURPOSE: Inserts the value val into the tree if it is unique
 // returns true if successful; returns false if val already exists
 bool BinarySearchTree::insert( BinarySearchTree::TaskItem val ) {
+	if (exists(val)) return false;
 	TaskItem *temp = root;
 	TaskItem *ins = new TaskItem(val);	//node we are inserting
 	if (root == NULL) {	//if tree is empty, node goes to the root
@@ -175,15 +182,14 @@ bool BinarySearchTree::insert( BinarySearchTree::TaskItem val ) {
 bool BinarySearchTree::remove( BinarySearchTree::TaskItem val ) {
 	if (root == NULL) {	//if tree is empty, can't remove anything
 		return false;
-	}
-	TaskItem *del = new TaskItem(val);	//node to be deleted
+	}	
 	TaskItem *tester = root;	//current node
 	TaskItem *parent = root;	//current node's parent
 	while (tester != NULL) {
-		if (del->priority < tester->priority && tester->left) {
+		if (val.priority < tester->priority && tester->left) {
 			parent = tester;
 			tester = tester->left;
-		} else if (del->priority > tester->priority && tester->right) {
+		} else if (val.priority > tester->priority && tester->right) {
 			parent = tester;
 			tester = tester->right;
 		} else {	//if no child exists in the required direction, exit the loop
@@ -192,24 +198,22 @@ bool BinarySearchTree::remove( BinarySearchTree::TaskItem val ) {
 	}
 	//tester is the node that will be deleted
 	//parent is the parent of tester node
-	if (tester->priority != del->priority) {	//check to confirm the above statement
+	if (tester->priority != val.priority) {	//check to confirm the above statement
 		return false;							//if false, the node to be removed doesn't exist
 	}
 	
 	//CASE 1: Node being deleted is leaf node
 	if (tester->left == NULL && tester->right == NULL) {
 		//delete that node directly
-		if (del->priority == root->priority) {	//check for root
+		if (val.priority == root->priority) {	//check for root
 			root = NULL;
-		} else if (del->priority < parent->priority) {	//must change the parent's left/right pointer
+		} else if (val.priority < parent->priority) {	//must change the parent's left/right pointer
 			parent->left = NULL;
-		} else if (del->priority > parent->priority) { //must change the parent's left/right pointer
+		} else if (val.priority > parent->priority) { //must change the parent's left/right pointer
 			parent->right = NULL;
 		}
+		delete tester;
 		tester = NULL;
-		delete del;
-		del = NULL;
-		parent = NULL;
 		size--;
 		return true;
 	}
@@ -219,36 +223,33 @@ bool BinarySearchTree::remove( BinarySearchTree::TaskItem val ) {
 	//link the parent node to the child node
 	//delete the node pointed to by the temporary pointer
 	if (tester->left && tester->right == NULL) {	//if the one child is a left child
-		if (del->priority == root->priority) {	//check root
+		if (val.priority == root->priority) {	//check root
 			root = root->left; //root now points to its left child
-		} else if (del->priority < parent->priority) {	
+		} else if (val.priority < parent->priority) {	
 			parent->left = tester->left;	//bypasses tester, edits parent's left child
-		} else if (del->priority > parent->priority) {
+		} else if (val.priority > parent->priority) {
 			parent->right = tester->left;	//bypasses tester, edits parent's right child
 		}
+		delete tester;
 		tester = NULL;
-		delete del;
-		del = NULL;
-		parent = NULL;
 		size--;
 		return true;
 	}
 	else if (tester->right && tester->left == NULL) { //if the one child is a right child
-		if (del->priority == root->priority) {	//check root
+		if (val.priority == root->priority) {	//check root
 			root = root->right; //root now points to its right child
-		} else if (del->priority < parent->priority) {
+		} else if (val.priority < parent->priority) {
 			parent->left = tester->right;	//bypasses tester, edits parent's left child
-		} else if (del->priority > parent->priority) {
+		} else if (val.priority > parent->priority) {
 			parent->right = tester->right;	//bypasses tester edits parent's right child
 		}
+		delete tester;
 		tester = NULL;
-		delete del;
-		del = NULL;
-		parent = NULL;
 		size--;
 		return true;	
 	}
 	
+	if (!exists(val)) return false;
 	
 	//CASE 3: Node being deleted has 2 children
 	//find min of right subtree, copy that value
@@ -260,24 +261,25 @@ bool BinarySearchTree::remove( BinarySearchTree::TaskItem val ) {
 	
 	//replace node to be deleted with that value
 	//delete the node that you took the min value from
-	if (del->priority == root->priority) {	//check root
-		remove(*temp);	//recursively remove the min node, will have either 0 or 1 child
-		root->priority = temp->priority;
-		root->description = temp->description;
-		size--;
-		return true;
-	} else if (del->priority < parent->priority) {
-		remove(*temp);	//recursively remove the min node, will have either 0 or 1 child
-		parent->left->priority = temp->priority;
-		parent->left->description = temp->description;
-		size--;
-		return true;
-	} else if (del->priority > parent->priority) {
-		remove(*temp);	//recursively remove the min node, will have either 0 or 1 child
-		parent->right->priority = temp->priority;
-		parent->right->description = temp->description;
-		size--;
-		return true;
+	if (tester->right && tester->left) {
+		int a = temp->priority;
+		string b = temp->description;
+		if (val.priority == root->priority) {	//check root
+			remove(*temp);	//recursively remove the min node, will have either 0 or 1 child
+			root->priority = a;
+			root->description = b;
+			return true;
+		} else if (val.priority < parent->priority) {
+			remove(*temp);	//recursively remove the min node, will have either 0 or 1 child
+			parent->left->priority = a;
+			parent->left->description = b;
+			return true;
+		} else if (val.priority > parent->priority) {
+			remove(*temp);	//recursively remove the min node, will have either 0 or 1 child
+			parent->right->priority = a;
+			parent->right->description = b;
+			return true;
+		}
 	}
-		
+	return false;
 }
