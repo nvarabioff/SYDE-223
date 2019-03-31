@@ -12,9 +12,17 @@ BinarySearchTree::BinarySearchTree() {
 	size = 0;
 }
 
+// PURPOSE: Removes tree nodes using postorder traversal - helper function
+void BinarySearchTree::PostOrder(TaskItem* T) {
+	if (!T) return;	
+	if (T->left) PostOrder(T->left); // enqueue left
+	if (T->right) PostOrder(T->right); // enqueue right
+	delete T;
+}
+
 // PURPOSE: Explicit destructor of the class BinarySearchTree
 BinarySearchTree::~BinarySearchTree() {
-	delete root;
+	PostOrder(root);
 }
 
 // PURPOSE: Returns the number of nodes in the tree
