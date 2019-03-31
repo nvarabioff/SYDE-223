@@ -36,6 +36,9 @@ public:
 	// PURPOSE: Default/empty constructor
 	 BinarySearchTree();
 
+	// PURPOSE: Removes tree nodes using postorder traversal - helper function
+	void PostOrder(TaskItem* T);
+	
 	// PURPOSE: Explicit destructor of the class BinarySearchTree
 	~BinarySearchTree();
 
