@@ -1,3 +1,6 @@
+//Nicholas Varabioff 20702729
+//Ryan Gangl 20737072
+
 #include <iostream>
 
 #include "lab4_priority_queue.hpp"
@@ -13,7 +16,10 @@ PriorityQueue::PriorityQueue(unsigned int n_capacity) {
 }
 
 // PURPOSE: Explicit destructor of the class PriorityQueue
-PriorityQueue::~PriorityQueue() {	//no idea what to do here
+PriorityQueue::~PriorityQueue() {
+	for (int i = 1; i <= size; ++i) {
+		delete heap[i];
+	}
 	delete [] heap;
 }
 
@@ -30,7 +36,7 @@ bool PriorityQueue::empty() const {
 }
 
 // PURPOSE: Returns true if the priority queue is full; false, otherwise
-bool PriorityQueue::full() const {	//not done
+bool PriorityQueue::full() const {
 	if (size == capacity)
 		return true;
 	return false;
@@ -61,7 +67,7 @@ PriorityQueue::TaskItem PriorityQueue::max() const {
 // re-arranges the elements back into a heap
 // returns true if successful and false otherwise
 // priority queue does not change in capacity
-bool PriorityQueue::enqueue( TaskItem val ) {	//Passes tests but don't think its done
+bool PriorityQueue::enqueue( TaskItem val ) {
 	if (full()) {
 		return false;
 	} else if (empty()) {
@@ -88,21 +94,39 @@ bool PriorityQueue::dequeue() {
 	if (empty()) {
 		return false;
 	} else if (size == 1) {
+		delete heap[1];
 		heap[1] = NULL;
+		size--;
 	} else {
+		TaskItem *temp = heap[1];
 		heap[1] = heap[size];
+		heap[size] = temp;
+		delete heap[size];
+		size--;
 		int i = 1;
-		while (i <= size) {
-			int max = 2*i;
-			if (heap[2*i + 1] > heap[2*i]) {
-				max = 2*i + 1;
+		bool keep_swapping = true;			
+		int max = i;
+		while (i <= size && keep_swapping) {
+			if (2*i + 1 <= size) {
+				if (heap[2*i] < heap[2*i + 1]) {
+					max = 2*i + 1;
+				} else {
+					max = 2*i;
+				}
+			} else if (2*i <= size) {
+				max = 2*i;
+			} else {
+				keep_swapping = false;
 			}
-			TaskItem *temp = heap[i];
-			heap[i] = heap[max];
-			heap[max] = temp;
-			i = max;
+			if (heap[i] < heap[max]) {
+				TaskItem *temp = heap[i];
+				heap[i] = heap[max];
+				heap[max] = temp;
+				i = max;				
+			} else {
+				keep_swapping = false;
+			}
 		}
 	}
-	size--;
 	return true;
 }
