@@ -52,7 +52,7 @@ int main() {
 	permutations("abcd", 0, 3);
 	//Test 10: Length of A is 5, some special characters
 	cout << "Test 10: Length of A is 5, some special characters\n";
-	permutations("a1b$4", 0, 3);
+	permutations("a1b$4", 0, 4);
 	//Test 11: Length of A is 5, all different
 	cout << "Test 11: Length of A is 5, all different\n";
 	permutations("abcde", 0, 4);
